@@ -67,9 +67,10 @@ export default function SharedView({ date, me, owners, people, open }: {
                 key={t.id}
                 className={'ev' + (t.is_done ? ' done' : '')}
                 style={{ '--c': color(t.user_id) } as CSSProperties}
-                title={`${label(t.user_id)} · ${t.text}`}
+                title={`${label(t.user_id)} · ${t.is_top3 ? '★ ' : ''}${t.text}`}
                 onClick={() => open(t.user_id, d)}
               >
+                {t.is_top3 && <span className="evstar" aria-label="Star">★ </span>}
                 {t.start_min != null && <b>{hhmm(t.start_min)} </b>}
                 {t.text}
               </button>
