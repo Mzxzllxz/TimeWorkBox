@@ -222,7 +222,6 @@ function TimeGrid({ tasks, api, isToday, picked, clearPick }: {
   }, [resize?.id])
 
   const box = (s: { hour: number; span: number }) => ({ top: (s.hour - firstHour) * H + 2, height: s.span * H - 4 })
-  const rank = new Map(tasks.filter(t => t.is_top3).map((t, i) => [t.id, i + 1]))
 
   return (
     <section className="card grid-card">
@@ -259,7 +258,7 @@ function TimeGrid({ tasks, api, isToday, picked, clearPick }: {
           const segs = segments(t.start_min, end)
           const active = isToday && !t.is_done && nowMin >= t.start_min! && nowMin < end
           const cls = 'seg'
-            + (rank.has(t.id) ? ' top' : '') + (active ? ' active' : '') + (t.is_done ? ' done' : '')
+            + (t.is_top3 ? ' top' : '') + (active ? ' active' : '') + (t.is_done ? ' done' : '')
             + (isToday && nowMin >= end ? ' past' : '') + (hover === t.id || resize?.id === t.id ? ' hov' : '')
           return segs.map((s, i) => (
             <div
@@ -281,7 +280,7 @@ function TimeGrid({ tasks, api, isToday, picked, clearPick }: {
             >
               {i === 0 && (
                 <>
-                  {rank.has(t.id) && <span className="rank">{rank.get(t.id)}</span>}
+                  {t.is_top3 && <span className="rank">★</span>}
                   <b>{t.text}</b>
                   {active
                     ? <small className={'remain' + (end - nowMin <= 5 ? ' urgent' : '')}>{end - nowMin}분 남음</small>

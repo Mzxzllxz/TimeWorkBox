@@ -15,7 +15,7 @@ export type Task = {
   scope: Scope
   period: string
   text: string
-  is_top3: boolean
+  is_top3: boolean // 화면에서는 "Star". 개수 제한 없음(컬럼 이름만 옛 이름)
   is_done: boolean
   completed_at: string | null
   start_min: number | null

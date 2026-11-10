@@ -65,7 +65,6 @@ export default function TaskList({ title, scope, period, tasks, api, placeholder
     ? tasks.filter(t => t.scope === 'day' && t.period >= syncDays[0] && t.period <= syncDays[1]).sort((a, b) => a.period.localeCompare(b.period))
     : []
   const all = [...list, ...synced]
-  const top3Full = list.filter(t => t.is_top3).length >= 3
 
   return (
     <section className="card">
@@ -115,9 +114,8 @@ export default function TaskList({ title, scope, period, tasks, api, placeholder
           {i < list.length && <button
             className={'star' + (t.is_top3 ? ' on' : '')}
             aria-pressed={t.is_top3}
-            aria-label="Top 3"
-            title={t.is_top3 ? 'Top 3에서 빼기' : top3Full ? 'Top 3는 3개까지' : 'Top 3로 지정'}
-            disabled={!t.is_top3 && top3Full}
+            aria-label="Star"
+            title={t.is_top3 ? 'Star 해제' : 'Star 표시'}
             onClick={() => api.update(t.id, { is_top3: !t.is_top3 })}
           >
             ★
