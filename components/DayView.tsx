@@ -121,11 +121,11 @@ function Timer({ tasks, api }: { tasks: Task[]; api: Api }) {
 }
 
 /** 완료한 일간 할 일. 지금 화면의 할 일은 즉시 반영하고, 다른 날짜의 기록은 따로 불러온다. */
-function History({ tasks }: { tasks: Task[] }) {
+function History({ tasks, userId }: { tasks: Task[]; userId: string }) {
   const [old, setOld] = useState<Task[]>([])
   useEffect(() => {
     supabase
-      .from('tasks').select('*').eq('scope', 'day').eq('is_done', true)
+      .from('tasks').select('*').eq('user_id', userId).eq('scope', 'day').eq('is_done', true)
       .order('completed_at', { ascending: false }).limit(100)
       .then(({ data }) => data && setOld(data))
   }, [])
@@ -317,7 +317,9 @@ function TimeGrid({ tasks, api, isToday, picked, clearPick }: {
   )
 }
 
-export default function DayView({ date, tasks, api }: { date: string; tasks: Task[]; api: Api }) {
+export default function DayView({ date, tasks, api, userId, readOnly }: {
+  date: string; tasks: Task[]; api: Api; userId: string; readOnly: boolean
+}) {
   const [picked, setPicked] = useState<string | null>(null)
   const day = tasks.filter(t => t.scope === 'day' && t.period === date)
   const isToday = date === today()
@@ -327,7 +329,7 @@ export default function DayView({ date, tasks, api }: { date: string; tasks: Tas
     const { data, error } = await supabase
       .from('tasks')
       .update({ period: date, start_min: null, end_min: null })
-      .eq('scope', 'day').lt('period', date).eq('is_done', false)
+      .eq('user_id', userId).eq('scope', 'day').lt('period', date).eq('is_done', false)
       .select('id')
     if (error) return alert('가져오지 못했어요: ' + error.message)
     alert(data.length ? `${data.length}개를 오늘로 가져왔어요.` : '가져올 미완료 할 일이 없어요.')
@@ -342,8 +344,8 @@ export default function DayView({ date, tasks, api }: { date: string; tasks: Tas
           title="일일 목표" scope="day" period={date} tasks={tasks} api={api}
           pickedId={picked} onPick={id => setPicked(p => (p === id ? null : id))}
         />
-        <History tasks={tasks} />
-        {isToday && <button className="ghost" onClick={carryOver}>지난 미완료 가져오기</button>}
+        <History tasks={tasks} userId={userId} />
+        {isToday && !readOnly && <button className="ghost" onClick={carryOver}>지난 미완료 가져오기</button>}
         <TaskList title="이번 주 목표" scope="week" period={weekStart(date)} tasks={tasks} api={api} syncDays={[weekStart(date), addDays(weekStart(date), 6)]} placeholder="주간 목표를 적고 Enter" />
         <TaskList title="이번 달 목표" scope="month" period={monthStart(date)} tasks={tasks} api={api} syncDays={[monthStart(date), addDays(addMonths(date, 1), -1)]} placeholder="월간 목표를 적고 Enter" />
       </aside>
