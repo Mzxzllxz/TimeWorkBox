@@ -73,7 +73,8 @@ function Planner({ email }: { email: string }) {
   // 어느 화면이든 이번 주·이번 달 목표가 함께 보이도록 조회 범위에 포함한다.
   const grid = monthGrid(date)
   const [start, end] =
-    view === 'day' ? [date, date]
+    // 일간: 이번 주·이번 달 카드에 그 기간의 일일 목표도 보여주므로 주와 달 전체를 불러온다.
+    view === 'day' ? [date, [addDays(weekStart(date), 6), addDays(addMonths(date, 1), -1)].sort()[1]]
     : view === 'week' ? [weekStart(date), addDays(weekStart(date), 6)]
     : [grid[0][0], grid.at(-1)![6]]
   const from = [start, weekStart(date), monthStart(date)].sort()[0]
@@ -100,6 +101,7 @@ function Planner({ email }: { email: string }) {
         <div className="pager">
           <button aria-label="이전" onClick={() => step(-1)}>‹</button>
           <b>{label}</b>
+          <input type="date" className="datepick" value={date} aria-label="날짜 선택" title="날짜 선택" onChange={e => e.target.value && go(view, e.target.value)} />
           <button aria-label="다음" onClick={() => step(1)}>›</button>
           <button className="ghost" onClick={() => go(view, today())}>오늘</button>
         </div>

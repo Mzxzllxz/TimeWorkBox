@@ -1,5 +1,5 @@
 'use client'
-import { monthGrid, monthStart, parse, today } from '@/lib/dates.mjs'
+import { addDays, addMonths, monthGrid, monthStart, parse, today } from '@/lib/dates.mjs'
 import type { Api, Task } from '@/lib/useTasks'
 import TaskList from './TaskList'
 import { DOW, Progress } from './WeekView'
@@ -15,7 +15,7 @@ export default function MonthView({ date, tasks, api, go }: {
     <div className="cols">
       <aside>
         <Progress label="이번 달 진행" tasks={dayTasks.filter(t => monthStart(t.period) === month)} />
-        <TaskList title="월간 목표" scope="month" period={month} tasks={tasks} api={api} placeholder="월간 목표를 적고 Enter" />
+        <TaskList title="월간 목표" scope="month" period={month} tasks={tasks} api={api} syncDays={[month, addDays(addMonths(month, 1), -1)]} placeholder="월간 목표를 적고 Enter" />
       </aside>
       <section className="card month">
         <span />

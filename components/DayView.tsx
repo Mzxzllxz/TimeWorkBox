@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { hhmm, monthStart, overlaps, segments, today, weekStart } from '@/lib/dates.mjs'
+import { addDays, addMonths, hhmm, monthStart, overlaps, segments, today, weekStart } from '@/lib/dates.mjs'
 import { supabase, type Api, type Task } from '@/lib/useTasks'
 import TaskList, { drag, dragging } from './TaskList'
 
@@ -339,13 +339,13 @@ export default function DayView({ date, tasks, api }: { date: string; tasks: Tas
       <aside>
         <Timer tasks={isToday ? day : []} api={api} />
         <TaskList
-          title="Brain Dump" scope="day" period={date} tasks={tasks} api={api}
+          title="일일 목표" scope="day" period={date} tasks={tasks} api={api}
           pickedId={picked} onPick={id => setPicked(p => (p === id ? null : id))}
         />
         <History tasks={tasks} />
         {isToday && <button className="ghost" onClick={carryOver}>지난 미완료 가져오기</button>}
-        <TaskList title="이번 주 목표" scope="week" period={weekStart(date)} tasks={tasks} api={api} placeholder="주간 목표를 적고 Enter" />
-        <TaskList title="이번 달 목표" scope="month" period={monthStart(date)} tasks={tasks} api={api} placeholder="월간 목표를 적고 Enter" />
+        <TaskList title="이번 주 목표" scope="week" period={weekStart(date)} tasks={tasks} api={api} syncDays={[weekStart(date), addDays(weekStart(date), 6)]} placeholder="주간 목표를 적고 Enter" />
+        <TaskList title="이번 달 목표" scope="month" period={monthStart(date)} tasks={tasks} api={api} syncDays={[monthStart(date), addDays(addMonths(date, 1), -1)]} placeholder="월간 목표를 적고 Enter" />
       </aside>
       <TimeGrid tasks={day} api={api} isToday={isToday} picked={picked} clearPick={() => setPicked(null)} />
     </div>
