@@ -36,7 +36,12 @@ export function Check({ t, api }: { t: Task; api: Api }) {
   )
 }
 
-export const drag = (id: string) => (e: DragEvent) => e.dataTransfer.setData('text/plain', id)
+/** 지금 끌고 있는 할 일. dragover 중에는 dataTransfer를 읽을 수 없어서 미리보기용으로 따로 둔다. */
+export const dragging = { id: '' }
+export const drag = (id: string) => (e: DragEvent) => {
+  dragging.id = id
+  e.dataTransfer.setData('text/plain', id)
+}
 
 type Props = {
   title: string

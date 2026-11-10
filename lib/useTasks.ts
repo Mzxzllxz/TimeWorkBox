@@ -1,5 +1,6 @@
 'use client'
 import { createClient } from '@supabase/supabase-js'
+import confetti from 'canvas-confetti'
 import { useEffect, useRef, useState } from 'react'
 
 export const supabase = createClient(
@@ -70,8 +71,14 @@ export function useTasks(from: string, to: string) {
     setTasks(ts => ts.filter(t => t.id !== id))
     settle(await supabase.from('tasks').delete().eq('id', id))
   }
-  const toggle = (t: Task) =>
-    update(t.id, { is_done: !t.is_done, completed_at: t.is_done ? null : new Date().toISOString() })
+  const toggle = (t: Task) => {
+    if (!t.is_done)
+      confetti({
+        particleCount: 80, spread: 70, origin: { y: 0.6 }, disableForReducedMotion: true,
+        colors: ['#1570ef', '#12b76a', '#f79009', '#f04438', '#ee46bc', '#9e77ed'],
+      })
+    return update(t.id, { is_done: !t.is_done, completed_at: t.is_done ? null : new Date().toISOString() })
+  }
 
   return { tasks, error, reload, add, update, remove, toggle }
 }

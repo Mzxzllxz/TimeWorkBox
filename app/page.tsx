@@ -10,6 +10,15 @@ import { supabase, useTasks } from '@/lib/useTasks'
 type View = 'day' | 'week' | 'month'
 const VIEWS: [View, string][] = [['day', '일간'], ['week', '주간'], ['month', '월간']]
 
+function ThemeButton() {
+  const toggle = () => {
+    const el = document.documentElement
+    el.dataset.theme = el.dataset.theme === 'dark' ? 'light' : 'dark'
+    try { localStorage.setItem('theme', el.dataset.theme) } catch {} // 저장이 막혀 있어도 이번 화면에는 적용된다
+  }
+  return <button type="button" className="ghost theme" onClick={toggle} title="라이트 / 다크 모드 전환" aria-label="라이트 / 다크 모드 전환">◐ 테마</button>
+}
+
 function Auth() {
   const [signUp, setSignUp] = useState(false)
   const [msg, setMsg] = useState('')
@@ -29,6 +38,7 @@ function Auth() {
 
   return (
     <main className="auth">
+      <ThemeButton />
       <form className="card" onSubmit={submit}>
         <h1>TimeWorkBox</h1>
         <p>일간·주간·월간 타임박싱 플래너</p>
@@ -95,6 +105,7 @@ function Planner({ email }: { email: string }) {
         </div>
         <span className="user">
           {email}
+          <ThemeButton />
           <button className="ghost" onClick={() => supabase.auth.signOut()}>로그아웃</button>
         </span>
       </header>
