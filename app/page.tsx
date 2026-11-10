@@ -3,13 +3,14 @@ import type { Session } from '@supabase/supabase-js'
 import { useCallback, useEffect, useState, type CSSProperties, type FormEvent } from 'react'
 import DayView from '@/components/DayView'
 import MonthView from '@/components/MonthView'
+import SharedView from '@/components/SharedView'
 import ShareDialog, { nameOf, type Profile, type Share } from '@/components/Share'
 import WeekView from '@/components/WeekView'
 import { addDays, addMonths, fmt, monthGrid, monthStart, parse, today, weekStart } from '@/lib/dates.mjs'
 import { supabase, useTasks } from '@/lib/useTasks'
 
-type View = 'day' | 'week' | 'month'
-const VIEWS: [View, string][] = [['day', '일간'], ['week', '주간'], ['month', '월간']]
+type View = 'day' | 'week' | 'month' | 'shared'
+const VIEWS: [View, string][] = [['day', '일간'], ['week', '주간'], ['month', '월간'], ['shared', '공유일정']]
 
 function ThemeButton() {
   const toggle = () => {
@@ -57,7 +58,7 @@ function Auth() {
 
 // 현재 화면은 주소의 해시(#week/2026-11-10)에 둔다. 새로고침·뒤로가기가 그대로 동작한다.
 const readNav = () => {
-  const m = location.hash.match(/^#(day|week|month)\/(\d{4}-\d{2}-\d{2})$/)
+  const m = location.hash.match(/^#(day|week|month|shared)\/(\d{4}-\d{2}-\d{2})$/)
   const date = m ? parse(m[2]) : new Date()
   return { view: (m ? m[1] : 'day') as View, date: fmt(isNaN(+date) ? new Date() : date) }
 }
@@ -135,7 +136,10 @@ function Planner({ me, email }: { me: string; email: string }) {
         </span>
       </header>
       {api.error && <p role="alert" className="error">불러오지 못했어요: {api.error}</p>}
-      {readOnly && <p className="banner"><i className="dot" />{nameOf(profile)}님의 일정 · 읽기 전용</p>}
+      {view === 'shared' && (
+        <SharedView date={date} me={me} owners={owners} people={people} open={(id, d) => { setPicked(id); go('day', d) }} />
+      )}
+      {readOnly && view !== 'shared' && <p className="banner"><i className="dot" />{nameOf(profile)}님의 일정 · 읽기 전용</p>}
       {view === 'day' && <DayView key={date + who} date={date} tasks={api.tasks} api={api} userId={who} readOnly={readOnly} />}
       {view === 'week' && <WeekView date={date} tasks={api.tasks} api={api} go={go} />}
       {view === 'month' && <MonthView date={date} tasks={api.tasks} api={api} go={go} />}
